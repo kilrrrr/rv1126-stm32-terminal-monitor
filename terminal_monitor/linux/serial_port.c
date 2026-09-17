@@ -92,10 +92,18 @@ int serial_read_poll(int fd, uint8_t *data, size_t capacity, int timeout_ms)
 	{
 		return ready;
 	}
-	if ((descriptor.revents & (POLLERR | POLLHUP | POLLNVAL)) != 0)
+	if ((descriptor.revents & POLLNVAL) != 0)
 	{
 		return -1;
 	}
-	return (int)read(fd, data, capacity);
+	if ((descriptor.revents & POLLIN) != 0)
+	{
+		return (int)read(fd, data, capacity);
+	}
+	if ((descriptor.revents & (POLLERR | POLLHUP)) != 0)
+	{
+		return -1;
+	}
+	return 0;
 }
 
