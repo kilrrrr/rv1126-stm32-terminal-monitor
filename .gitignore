@@ -1,0 +1,8 @@
+terminal_monitor/linux/monitor_daemon
+terminal_monitor/linux/monitor_cli
+terminal_monitor/tests/protocol_test
+terminal_monitor/tests/firmware_test
+*.o
+*.elf
+*.hex
+*.bin
