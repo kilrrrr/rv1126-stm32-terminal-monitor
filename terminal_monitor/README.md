@@ -33,3 +33,28 @@ make -C terminal_monitor/tests check
 ./terminal_monitor/linux/monitor_cli /dev/ttyUSB0 set-light 20
 ```
 
+## 无硬件模拟验证
+
+Linux 端提供 `monitor_simulator`，通过伪终端模拟 STM32 的 UART 输出，不需要连接开发板即可验证协议解析和监测服务。
+
+终端 1 启动模拟节点（发送 5 帧，间隔 200 ms）：
+
+```text
+./terminal_monitor/linux/monitor_simulator --frames 5 --interval-ms 200
+```
+
+程序会打印类似 `SIM_DEVICE=/dev/pts/3` 的设备路径。终端 2 使用该路径启动守护进程：
+
+```text
+./terminal_monitor/linux/monitor_daemon /dev/pts/3
+```
+
+可以注入通信异常：
+
+```text
+./terminal_monitor/linux/monitor_simulator --frames 20 \
+  --interval-ms 100 --drop-every 4 --bad-crc-every 5
+```
+
+其中序号跳变用于观察丢帧，CRC 错误帧应被协议解析器丢弃。该模拟只覆盖协议、解析器和 Linux 服务逻辑；ADC、I2C、定时器捕获、PWM 输出以及 UART 电气层仍需连接 STM32F103 和实际外设后验证。
+
